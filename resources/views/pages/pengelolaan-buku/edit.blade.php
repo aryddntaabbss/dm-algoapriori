@@ -59,21 +59,6 @@
                                         </div>
                                     </div> <!-- pengarang -->
 
-                                    <!-- Stok Buku -->
-                                    <div class="form-group col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="stok">Stok</label>
-                                            <input type="number" id="stok"
-                                                class="form-control @error('stok') is-invalid @enderror" name="stok"
-                                                value="{{ old('stok', $book->stok) }}" placeholder="Stok Buku" required>
-                                            @error('stok')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong class="text-danger">{{ $message }}</strong>
-                                            </span>
-                                            @enderror
-                                        </div>
-                                    </div> <!-- stok -->
-
                                     <!-- Kategori Buku -->
                                     <div class="form-group col-md-6">
                                         <div class="form-group mb-3">
@@ -89,6 +74,21 @@
                                             @enderror
                                         </div>
                                     </div> <!-- Kategori -->
+
+                                    <!-- Stok Buku -->
+                                    <div class="form-group col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="stok">Stok</label>
+                                            <input type="number" id="stok"
+                                                class="form-control @error('stok') is-invalid @enderror" name="stok"
+                                                value="{{ old('stok', $book->stok) }}" placeholder="Stok Buku" required>
+                                            @error('stok')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong class="text-danger">{{ $message }}</strong>
+                                            </span>
+                                            @enderror
+                                        </div>
+                                    </div> <!-- stok -->
 
                                     <!-- Tahun Terbit -->
                                     <div class="form-group col-md-6">

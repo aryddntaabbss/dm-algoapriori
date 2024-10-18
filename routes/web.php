@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\PengunjungController;
 
@@ -14,6 +15,9 @@ Route::get('/login', function () {
 Route::get('/', function () {
     return view('pages.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Home
+Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route untuk buku
 Route::middleware(['auth', 'verified'])->group(function () {
