@@ -27,6 +27,20 @@
 
                                 <div class="row mb-3 mt-3">
 
+                                    <!-- Kode Buku -->
+                                    <div class="form-group col-md-6">
+                                        <label for="kode_buku">Kode Buku</label>
+                                        <input type="text" id="kode_buku"
+                                            class="form-control @error('kode_buku') is-invalid @enderror"
+                                            name="kode_buku" value="{{ old('kode_buku', $book->kode_buku) }}"
+                                            placeholder="Masukkan Kode Buku" required>
+                                        @error('kode_buku')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                        @enderror
+                                    </div>
+
                                     <!-- Judul Buku -->
                                     <div class="form-group col-md-6">
                                         <div class="form-group mb-3">

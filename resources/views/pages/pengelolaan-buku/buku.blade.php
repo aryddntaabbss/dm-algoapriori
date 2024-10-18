@@ -27,7 +27,7 @@
                             <table class="table datatables" id="dataTable-1">
                                 <thead>
                                     <tr>
-                                        <th><strong>ID Buku</strong></th>
+                                        <th><strong>Kode Buku</strong></th>
                                         <th><strong>Judul Buku</strong></th>
                                         <th><strong>Pengarang</strong></th>
                                         <th><strong>Tahun Terbit</strong></th>
@@ -40,7 +40,7 @@
                                 <tbody>
                                     @foreach($books as $book)
                                     <tr>
-                                        <td>{{ $book->id }}</td>
+                                        <td>{{ $book->kode_buku }}</td>
                                         <td>{{ $book->judul }}</td>
                                         <td>{{ $book->pengarang }}</td>
                                         <td>{{ $book->tahun_terbit }}</td>
