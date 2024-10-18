@@ -87,6 +87,19 @@
                                     @enderror
                                 </div>
 
+                                {{-- Tanggal --}}
+                                <div class="form-group">
+                                    <label for="tanggal">Tanggal</label>
+                                    <input type="date" id="tanggal"
+                                        class="form-control @error('tanggal') is-invalid @enderror" name="tanggal"
+                                        value="{{ old('tanggal') }}" required>
+                                    @error('tanggal')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                    @enderror
+                                </div>
+
                                 <!-- Submit -->
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fe fe-save"></i> Simpan

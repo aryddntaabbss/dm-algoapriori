@@ -39,6 +39,7 @@ class PengunjungController extends Controller
             'no_whatsapp' => 'required|string|max:20',
             'jenjang' => 'required|string|in:Siswa,Mahasiswa,Guru,Lansia',
             'kategori' => 'required|string|in:Peminjaman,Pengembalian',
+            'tanggal' => 'required|date',
         ]);
 
         // Simpan data pengunjung ke database
@@ -71,6 +72,7 @@ class PengunjungController extends Controller
             'no_whatsapp' => 'required|string|max:20',
             'jenjang' => 'required|string|in:Siswa,Mahasiswa,Guru,Lansia',
             'kategori' => 'required|string|in:Peminjaman,Pengembalian',
+            'tanggal' => 'required|date',
         ]);
 
         // Mengambil data pengunjung berdasarkan ID

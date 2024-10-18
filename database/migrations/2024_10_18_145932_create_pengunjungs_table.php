@@ -19,6 +19,7 @@ class CreatePengunjungsTable extends Migration
             $table->string('no_whatsapp'); // Nomor WhatsApp pengunjung
             $table->enum('jenjang', ['Siswa', 'Mahasiswa', 'Guru', 'Lansia']); // Jenjang: Siswa, Mahasiswa, Guru, Lansia
             $table->string('kategori'); // Kategori pengunjung
+            $table->date('tanggal');
             $table->timestamps(); // Timestamps created_at dan updated_at
         });
     }

@@ -27,12 +27,13 @@
                             <table class="table datatables" id="dataTable-1">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Nama</th>
-                                        <th>No WhatsApp</th>
-                                        <th>Jenjang</th>
-                                        <th>Kategori</th>
-                                        <th>Action</th>
+                                        <th><strong>ID</strong></th>
+                                        <th><strong>Nama</strong></th>
+                                        <th><strong>No WhatsApp</strong></th>
+                                        <th><strong>Jenjang</strong></th>
+                                        <th><strong>Kategori</strong></th>
+                                        <th><strong>Tanggal</strong></th>
+                                        <th><strong>Aksi</strong></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -43,6 +44,7 @@
                                         <td>{{ $pengunjung->no_whatsapp }}</td>
                                         <td>{{ $pengunjung->jenjang }}</td>
                                         <td>{{ $pengunjung->kategori }}</td>
+                                        <td>{{ $pengunjung->tanggal }}</td>
                                         <td>
                                             <button class="btn btn-sm dropdown-toggle more-horizontal" type="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
