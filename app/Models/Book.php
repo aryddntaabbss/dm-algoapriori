@@ -13,7 +13,7 @@ class Book extends Model
         'kode_buku',
         'judul',
         'pengarang',
-        'kategori',
+        'kategori_buku',
         'stok',
         'tahun_terbit',
     ];

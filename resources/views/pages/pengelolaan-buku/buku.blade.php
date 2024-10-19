@@ -31,7 +31,7 @@
                                         <th><strong>Judul Buku</strong></th>
                                         <th><strong>Pengarang</strong></th>
                                         <th><strong>Tahun Terbit</strong></th>
-                                        <th><strong>Kategori</strong></th>
+                                        <th><strong>kategori_buku</strong></th>
                                         <th><strong>Stok</strong></th>
                                         <th><strong>Status</strong></th>
                                         <th><strong>Action</strong></th>
@@ -44,7 +44,7 @@
                                         <td>{{ $book->judul }}</td>
                                         <td>{{ $book->pengarang }}</td>
                                         <td>{{ $book->tahun_terbit }}</td>
-                                        <td>{{ $book->kategori }}</td>
+                                        <td>{{ $book->kategori_buku }}</td>
                                         <td>{{ $book->stok }}</td>
                                         <td>{{ $book->stok > 0 ? 'Ada' : 'Kosong' }}</td>
                                         <td>

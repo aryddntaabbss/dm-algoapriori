@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\PengunjungController;
+use App\Http\Controllers\RekAprioriController;
 
 // Route untuk halaman login
 Route::get('/login', function () {
@@ -38,6 +39,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/pengunjung/{pengunjung}', [PengunjungController::class, 'update'])->name('pengunjung.update');
     Route::delete('/pengunjung/{pengunjung}', [PengunjungController::class, 'destroy'])->name('pengunjung.destroy');
 });
+
+// Route Apriori
+Route::get('/rek-apriori', [RekAprioriController::class, 'index'])->name('rek-apriori'); // Route untuk menampilkan form dan hasil rekomendasi
+Route::post('/rek-apriori/process', [RekAprioriController::class, 'process'])->name('rek-apriori.process'); // Route untuk memproses form dan menampilkan hasil rekomendasi
+
 
 // Route untuk profile management
 Route::middleware('auth')->group(function () {

@@ -32,7 +32,7 @@ class BookController extends Controller
             'kode_buku' => 'required|string|max:100|unique:books,kode_buku',
             'judul' => 'required|string|max:255',
             'pengarang' => 'required|string|max:255',
-            'kategori' => 'required|string|max:255',
+            'kategori_buku' => 'required|string|max:255',
             'stok' => 'required|integer',
             'tahun_terbit' => 'required|integer',
         ]);
@@ -71,7 +71,7 @@ class BookController extends Controller
             'judul' => 'required|string|max:255',
             'pengarang' => 'required|string|max:255',
             'tahun_terbit' => 'required|integer',
-            'kategori' => 'required|string|max:255',
+            'kategori_buku' => 'required|string|max:255',
             'stok' => 'required|integer',
             'kode_buku' => 'required|string|max:100|unique:books,kode_buku,' . $book->id, // Mengabaikan buku saat ini
         ]);

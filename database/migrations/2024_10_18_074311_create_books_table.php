@@ -17,7 +17,7 @@ class CreateBooksTable extends Migration
             $table->id();
             $table->string('judul');
             $table->string('pengarang');
-            $table->string('kategori');
+            $table->string('kategori_buku');
             $table->integer('stok');
             $table->integer('tahun_terbit');
             $table->timestamps();

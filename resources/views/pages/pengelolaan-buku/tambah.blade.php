@@ -92,12 +92,12 @@
                                     <!-- Kategori Buku -->
                                     <div class="form-group col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="kategori">Kategori</label>
-                                            <input type="text" id="kategori"
-                                                class="form-control @error('kategori') is-invalid @enderror"
-                                                name="kategori" value="{{ old('kategori') }}"
+                                            <label for="kategori_buku">Kategori</label>
+                                            <input type="text" id="kategori_buku"
+                                                class="form-control @error('kategori_buku') is-invalid @enderror"
+                                                name="kategori_buku" value="{{ old('kategori_buku') }}"
                                                 placeholder="Kategori Buku" required>
-                                            @error('kategori')
+                                            @error('kategori_buku')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong class="text-danger">{{ $message }}</strong>
                                             </span>
