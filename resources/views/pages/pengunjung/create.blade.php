@@ -87,6 +87,24 @@
                                     @enderror
                                 </div>
 
+                                <!-- Judul Buku -->
+                                <div class="form-group">
+                                    <label for="judul_buku">Judul Buku</label>
+                                    <select id="judul_buku"
+                                        class="form-control @error('judul_buku') is-invalid @enderror" name="judul_buku"
+                                        required>
+                                        <option value="" disabled selected>Pilih Buku</option>
+                                        @foreach($books as $book)
+                                        <option value="{{ $book->judul }}">{{ $book->judul }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('judul_buku')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                    @enderror
+                                </div>
+
                                 {{-- Tanggal --}}
                                 <div class="form-group">
                                     <label for="tanggal">Tanggal</label>

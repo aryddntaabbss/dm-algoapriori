@@ -32,6 +32,7 @@
                                         <th><strong>No WhatsApp</strong></th>
                                         <th><strong>Jenjang</strong></th>
                                         <th><strong>Kategori</strong></th>
+                                        <th><strong>Judul Buku</strong></th>
                                         <th><strong>Tanggal</strong></th>
                                         <th><strong>Aksi</strong></th>
                                     </tr>
@@ -44,6 +45,7 @@
                                         <td>{{ $pengunjung->no_whatsapp }}</td>
                                         <td>{{ $pengunjung->jenjang }}</td>
                                         <td>{{ $pengunjung->kategori }}</td>
+                                        <td>{{ $pengunjung->judul_buku }}</td>
                                         <td>{{ $pengunjung->tanggal }}</td>
                                         <td>
                                             <button class="btn btn-sm dropdown-toggle more-horizontal" type="button"

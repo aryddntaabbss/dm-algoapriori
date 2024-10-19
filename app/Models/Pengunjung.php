@@ -14,6 +14,7 @@ class Pengunjung extends Model
         'no_whatsapp',
         'jenjang',
         'kategori',
+        'judul_buku',
         'tanggal',
     ];
 }
