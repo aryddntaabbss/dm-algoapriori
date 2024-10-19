@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Book;
+use App\Imports\BooksImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BookController extends Controller
 {
@@ -29,7 +31,7 @@ class BookController extends Controller
     {
         // Validasi input
         $validatedData = $request->validate([
-            'kode_buku' => 'required|string|max:100|unique:books,kode_buku',
+            'kode_buku' => 'required|string|max:255|unique:books,kode_buku',
             'judul' => 'required|string|max:255',
             'pengarang' => 'required|string|max:255',
             'kategori_buku' => 'required|string|max:255',
@@ -37,17 +39,12 @@ class BookController extends Controller
             'tahun_terbit' => 'required|integer',
         ]);
 
-        try {
-            // Simpan data ke database
-            Book::create($validatedData);
+        // Simpan data ke database
+        Book::create($validatedData);
 
-            // Redirect dengan pesan sukses
-            return redirect()->route('buku')->with('success', 'Buku berhasil ditambahkan.');
-        } catch (\Exception $e) {
-            // Jika gagal, redirect kembali dengan pesan error
-            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data buku ke database. Silakan coba lagi.');
-        }
+        return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan.');
     }
+
 
     /**
      * Menampilkan form edit untuk buku yang dipilih
@@ -84,6 +81,22 @@ class BookController extends Controller
 
         // Redirect ke halaman daftar buku dengan pesan sukses
         return redirect()->route('buku')->with('success', 'Buku berhasil diperbarui.');
+    }
+
+    // Metode untuk mengimpor buku
+    public function import(Request $request)
+    {
+        $import = new BooksImport;
+        Excel::import($import, $request->file('file'));
+
+        // Ambil daftar buku yang duplikat
+        $duplicates = $import->getDuplicateBooks();
+
+        if (count($duplicates) > 0) {
+            return redirect()->back()->with('warning', 'Buku berikut sudah ada di database: ' . implode(', ', $duplicates));
+        }
+
+        return redirect()->route('buku')->with('success', 'Buku berhasil diimport.');
     }
 
 

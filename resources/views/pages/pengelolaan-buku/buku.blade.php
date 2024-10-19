@@ -22,16 +22,24 @@
                                 <a href="/buku" class="btn btn-success text-light">
                                     <i class="fe fe-download fe-16"></i> Download Data Buku
                                 </a>
+
+                                <!-- Tombol untuk membuka modal -->
+                                <button type="button" class="btn btn-warning" data-toggle="modal"
+                                    data-target="#importModal">
+                                    <i class="fe fe-upload fe-16"></i> Import Buku dari Excel
+                                </button>
                             </div>
+
                             <!-- table -->
                             <table class="table datatables" id="dataTable-1">
                                 <thead>
                                     <tr>
+                                        <th><strong>ID</strong></th> <!-- Tambahkan kolom ID -->
                                         <th><strong>Kode Buku</strong></th>
                                         <th><strong>Judul Buku</strong></th>
                                         <th><strong>Pengarang</strong></th>
                                         <th><strong>Tahun Terbit</strong></th>
-                                        <th><strong>kategori_buku</strong></th>
+                                        <th><strong>Kategori Buku</strong></th>
                                         <th><strong>Stok</strong></th>
                                         <th><strong>Status</strong></th>
                                         <th><strong>Action</strong></th>
@@ -40,6 +48,7 @@
                                 <tbody>
                                     @foreach($books as $book)
                                     <tr>
+                                        <td>{{ $book->id }}</td> <!-- Tampilkan ID -->
                                         <td>{{ $book->kode_buku }}</td>
                                         <td>{{ $book->judul }}</td>
                                         <td>{{ $book->pengarang }}</td>
@@ -81,4 +90,42 @@
         </div> <!-- .col-12 -->
     </div> <!-- .row -->
 </div> <!-- .container-fluid -->
+
+<!-- Modal -->
+<div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importModalLabel">Import Buku dari Excel</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form Import Buku -->
+                <form action="{{ route('buku.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group">
+                        <label for="file">Pilih File Excel</label>
+                        <input type="file" name="file" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Import Buku</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('scripts')
+<script>
+    $(document).ready(function(){
+        $('#dataTable-1').DataTable(); // Inisialisasi DataTables
+    });
+</script>
 @endsection

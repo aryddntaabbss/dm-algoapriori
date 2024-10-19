@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/buku/{book}/edit', [BookController::class, 'edit'])->name('buku.edit');
     Route::put('/buku/{book}', [BookController::class, 'update'])->name('buku.update');
     Route::delete('/buku/{id}', [BookController::class, 'destroy'])->name('buku.destroy');
+    Route::post('/buku/import', [BookController::class, 'import'])->name('buku.import'); // Untuk mengimport file excel
 });
 
 // Route untuk pengunjung
