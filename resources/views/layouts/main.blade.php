@@ -6,7 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'Sistem Rekomendasi Buku Perpustakaan Daerah Kota Ternate') }}</title>
+
+        <!-- Tambahkan Favicon -->
+        <link rel="icon" href="{{ asset('images/logo-pemkot.png') }}" type="image/x-icon">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,6 +25,7 @@
         <link rel="stylesheet" href="{{ asset('admin/css/feather.css') }}">
         <link rel="stylesheet" href="{{ asset('admin/css/dataTables.bootstrap4.css') }}">
         <link rel="stylesheet" href="{{ asset('admin/css/daterangepicker.css') }}">
+        <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}">
         <link rel="stylesheet" href="{{ asset('admin/css/app-light.css') }}" id="lightTheme">
         <link rel="stylesheet" href="{{ asset('admin/css/app-dark.css') }}" id="darkTheme" disabled>
 
@@ -54,7 +58,8 @@
         <div class="wrapper">
             @yield('headerside')
 
-            <main role="main" class="main-content">
+            <main role="main" class=" main-content">
+
                 @yield('main')
 
                 <div class="container-fluid">
@@ -64,6 +69,7 @@
                         </div>
                     </div>
                 </div>
+                @include('layouts.footer')
             </main>
         </div>
 

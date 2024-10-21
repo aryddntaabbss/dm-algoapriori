@@ -12,8 +12,8 @@ class HomeController extends Controller
         // Menghitung jumlah buku
         $bookCount = Book::count();
 
-        // Menghitung jumlah pengunjung
-        $pengunjungCount = Pengunjung::count();
+        // Menghitung jumlah pengunjung dengan kategori "peminjam"
+        $pengunjungCount = Pengunjung::whereRaw('LOWER(kategori) = ?', ['peminjaman'])->count();
 
         // Mengirim data ke view
         return view('pages.dashboard', [
