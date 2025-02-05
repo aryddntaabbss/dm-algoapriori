@@ -29,6 +29,20 @@
             </li>
         </ul>
 
+        <!-- Manajemen User Link (Hanya untuk Admin) -->
+        @auth
+        @if (auth()->user()->role === 'admin')
+        <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item w-100">
+                <a class="nav-link {{ Request::is('users*') ? 'actives' : '' }}" href="{{ route('users.index') }}">
+                    <i class="fe fe-users fe-16"></i>
+                    <span class="ml-3 item-text">Manajemen User</span>
+                </a>
+            </li>
+        </ul>
+        @endif
+        @endauth
+
         <!-- Pengunjung Link -->
         <ul class="navbar-nav flex-fill w-100 mb-2">
             <li class="nav-item w-100">
@@ -65,10 +79,10 @@
             <li class="nav-item w-100">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                this.closest('form').submit();">
+                    <a class="nav-link" href="javascript:void(0);"
+                        onclick="event.preventDefault(); this.closest('form').submit();">
                         <i class="fe fe-log-out fe-16"></i>
-                        <span class="ml-3 item-text">Logout</span>
+                        <span class="ml-3 item-text d-none d-md-inline-block">Logout</span>
                     </a>
                 </form>
             </li>

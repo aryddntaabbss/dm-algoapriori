@@ -6,6 +6,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\PengunjungController;
 use App\Http\Controllers\RekAprioriController;
+use App\Http\Controllers\UserController;
+use App\Http\Middleware\RoleMiddleware;
 
 // Route untuk halaman login
 Route::get('/login', function () {
@@ -17,8 +19,9 @@ Route::get('/', function () {
     return view('pages.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Home
-Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [HomeController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // Route untuk buku
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -28,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/buku/{book}/edit', [BookController::class, 'edit'])->name('buku.edit');
     Route::put('/buku/{book}', [BookController::class, 'update'])->name('buku.update');
     Route::delete('/buku/{id}', [BookController::class, 'destroy'])->name('buku.destroy');
-    Route::post('/buku/import', [BookController::class, 'import'])->name('buku.import'); // Untuk mengimport file excel
+    Route::post('/buku/import', [BookController::class, 'import'])->name('buku.import');
 });
 
 // Route untuk pengunjung
@@ -42,15 +45,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Route Apriori
-Route::get('/rek-apriori', [RekAprioriController::class, 'index'])->name('rek-apriori'); // Route untuk menampilkan form dan hasil rekomendasi
-Route::post('/rek-apriori/process', [RekAprioriController::class, 'process'])->name('rek-apriori.process'); // Route untuk memproses form dan menampilkan hasil rekomendasi
-
+Route::get('/rek-apriori', [RekAprioriController::class, 'index'])->name('rek-apriori');
+Route::post('/rek-apriori/process', [RekAprioriController::class, 'process'])->name('rek-apriori.process');
 
 // Route untuk profile management
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Route untuk manajemen user
+Route::middleware(['auth', 'verified', RoleMiddleware::class . ':admin'])->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{users}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{users}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{users}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
 // Include file auth routes
