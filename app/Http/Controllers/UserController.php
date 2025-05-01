@@ -42,6 +42,7 @@ class UserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'nomor_tlp' => ['required', 'string', 'max:15', 'regex:/^[0-9]+$/', 'unique:users,nomor_tlp'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'in:admin,pengunjung'], // Role bisa admin atau pengunjung
         ]);
@@ -50,6 +51,7 @@ class UserController extends Controller
         User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'nomor_tlp' => $request->nomor_tlp,
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
@@ -81,6 +83,7 @@ class UserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'nomor_tlp' => ['required', 'string', 'max:15', 'regex:/^[0-9]+$/', 'unique:users,nomor_tlp,' . $user->id],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'in:admin,pengunjung'], // Role bisa admin atau pengunjung
         ]);
@@ -89,6 +92,7 @@ class UserController extends Controller
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
+            'nomor_tlp' => $request->nomor_tlp,
             'password' => $request->password ? Hash::make($request->password) : $user->password,
             'role' => $request->role,
         ]);

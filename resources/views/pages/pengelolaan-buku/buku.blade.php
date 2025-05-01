@@ -16,18 +16,16 @@
                     <div class="card shadow">
                         <div class="card-body">
                             <div class="card-header">
+                                @if(auth()->user()->role === 'admin')
                                 <a href="{{ route('buku.create') }}" class="btn btn-primary">
                                     <i class="fe fe-file-plus fe-16"></i> Tambah Data Buku
                                 </a>
-                                <a href="/buku" class="btn btn-success text-light">
-                                    <i class="fe fe-download fe-16"></i> Download Data Buku
-                                </a>
-
                                 <!-- Tombol untuk membuka modal -->
                                 <button type="button" class="btn btn-warning" data-toggle="modal"
                                     data-target="#importModal">
                                     <i class="fe fe-upload fe-16"></i> Import Buku dari Excel
                                 </button>
+                                @endif
                             </div>
 
                             <!-- table -->
@@ -42,7 +40,7 @@
                                         <th><strong>Kategori Buku</strong></th>
                                         <th><strong>Stok</strong></th>
                                         <th><strong>Status</strong></th>
-                                        <th><strong>Action</strong></th>
+                                        <th><strong>Aksi</strong></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -62,6 +60,7 @@
                                                 <span class="text-muted sr-only">Action</span>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right">
+                                                @if(auth()->user()->role === 'admin')
                                                 <!-- Tombol Edit -->
                                                 <a href="{{ route('buku.edit', $book->id) }}"
                                                     class="btn btn-primary dropdown-item">
@@ -77,6 +76,39 @@
                                                         <i class="fe fe-trash-2"></i> Hapus
                                                     </button>
                                                 </form>
+                                                @endif
+
+                                                @php
+                                                $peminjamanUser = $pengunjungs->where('user_id', auth()->user()->id)
+                                                ->where('judul_buku', $book->judul)
+                                                ->where('kategori', 'Pinjam')
+                                                ->first();
+                                                $sedangMeminjam = $peminjamanUser ? true : false;
+                                                @endphp
+
+                                                @if(in_array(auth()->user()->role, ['admin', 'pengunjung']))
+
+                                                @if(!$sedangMeminjam)
+                                                <form action="{{ route('buku.pinjam') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="judul_buku" value="{{ $book->judul }}">
+                                                    <button type="submit" class="btn btn-primary dropdown-item"
+                                                        @if($book->stok <= 0) disabled @endif>
+                                                            <i class="fe fe-arrow-right"></i> Pinjam Buku
+                                                    </button>
+                                                </form>
+                                                @else
+                                                <form
+                                                    action="{{ route('buku.kembalikan', ['id' => $peminjamanUser->id]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-danger dropdown-item">
+                                                        <i class="fe fe-arrow-left"></i> Kembalikan Buku
+                                                    </button>
+                                                </form>
+                                                @endif
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

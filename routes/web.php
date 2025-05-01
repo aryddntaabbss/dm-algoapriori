@@ -32,6 +32,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/buku/{book}', [BookController::class, 'update'])->name('buku.update');
     Route::delete('/buku/{id}', [BookController::class, 'destroy'])->name('buku.destroy');
     Route::post('/buku/import', [BookController::class, 'import'])->name('buku.import');
+    Route::post('/buku/pinjam', [BookController::class, 'pinjam'])->name('buku.pinjam');
+    Route::put('/buku/kembalikan/{id}', [BookController::class, 'kembalikan'])->name('buku.kembalikan');
 });
 
 // Route untuk pengunjung

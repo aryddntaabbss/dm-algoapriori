@@ -33,15 +33,19 @@ class RegisteredUserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'nomor_tlp' => ['required', 'string', 'max:15', 'regex:/^[0-9]+$/', 'unique:users,nomor_tlp'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'jenjang' => ['required', 'in:Siswa,Mahasiswa,Guru,Lansia'], // Validasi pilihan jenjang
         ]);
 
         // Buat user baru dengan role 'pengunjung'
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'nomor_tlp' => $validated['nomor_tlp'],
             'password' => Hash::make($validated['password']),
             'role' => 'pengunjung',  // Menetapkan role pengunjung
+            'jenjang' => $validated['jenjang'], // Simpan jenjang
         ]);
 
         // Event pendaftaran user baru

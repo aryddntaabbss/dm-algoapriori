@@ -5,16 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pengunjung;
 use App\Models\Book;
+use App\Models\User;
 use Phpml\Association\Apriori;
 
 class RekAprioriController extends Controller
 {
     /**
-     * Menampilkan halaman untuk memproses Apriori.
+     * Menampilkan halaman Apriori.
      */
     public function index()
     {
-        // Awalnya halaman hanya menampilkan form, belum ada hasil
         return view('pages.rek-apriori.index');
     }
 
@@ -23,41 +23,65 @@ class RekAprioriController extends Controller
      */
     public function process(Request $request)
     {
-        // Ambil input dari form
-        $minSupport = $request->input('min_support', 0.3);
-        $minConfidence = $request->input('min_confidence', 0.5);
+        // Validasi input
+        $request->validate([
+            'min_support' => 'required|numeric|min:0.01|max:1',
+            'min_confidence' => 'required|numeric|min:0.01|max:1',
+        ]);
 
-        // Ambil data transaksi peminjam (kategori Peminjaman) beserta jenjang dan judul buku
-        $transactions = Pengunjung::where('kategori', 'Peminjaman')
-            ->join('books', 'pengunjungs.judul_buku', '=', 'books.judul')
-            ->select('pengunjungs.id', 'pengunjungs.jenjang', 'books.kategori_buku')
+        $minSupport = (float) $request->min_support;
+        $minConfidence = (float) $request->min_confidence;
+
+        // Ambil data transaksi peminjaman buku beserta jenjang pengguna
+        $transactions = Book::join('pengunjungs', 'pengunjungs.judul_buku', '=', 'books.judul')
+            ->join('users', 'pengunjungs.user_id', '=', 'users.id')
+            ->select('users.jenjang', 'books.kategori_buku')
+            ->where('pengunjungs.kategori', 'Pinjam')
             ->get();
 
-        // Proses data menggunakan algoritma Apriori dengan support dan confidence dari input
-        $aprioriResult = $this->runApriori($transactions, $minSupport, $minConfidence);
+        // Konversi data ke format Apriori (list of transactions)
+        $samples = [];
+        foreach ($transactions as $t) {
+            $samples[$t->jenjang][] = $t->kategori_buku;
+        }
 
-        // Kirim hasil ke halaman result (tetap pada halaman yang sama)
+        // Cek apakah ada transaksi sebelum menjalankan Apriori
+        if (empty($samples)) {
+            return redirect()->route('rek-apriori')
+                ->with('error', 'Data transaksi kosong! Tambahkan data peminjaman buku terlebih dahulu.')
+                ->withInput();
+        }
+
+        // Konversi associative array ke indexed array
+        $samples = array_values($samples);
+
+        // Jalankan Apriori
+        $aprioriResult = $this->runApriori($samples, $minSupport, $minConfidence);
+
+        // Cek apakah ada aturan asosiasi
+        if (empty($aprioriResult)) {
+            return redirect()->route('rek-apriori')
+                ->with('warning', 'Algoritma tidak menemukan aturan asosiasi. Coba ubah nilai Support dan Confidence.')
+                ->withInput();
+        }
+
         return view('pages.rek-apriori.index', compact('aprioriResult', 'transactions'));
     }
 
-    private function runApriori($transactions, $minSupport, $minConfidence)
+    /**
+     * Fungsi untuk menjalankan algoritma Apriori
+     */
+    private function runApriori(array $samples, float $minSupport, float $minConfidence)
     {
-        // Data yang digunakan untuk Apriori
-        $samples = [];
-        foreach ($transactions as $transaction) {
-            $samples[] = [$transaction->jenjang, $transaction->kategori_buku];
+        if (empty($samples)) {
+            return [];
         }
 
-        // Inisialisasi Apriori dengan support dan confidence yang diterima dari input
+        // Inisialisasi Apriori
         $associator = new Apriori($minSupport, $minConfidence);
-
-        // Training data transaksi
         $associator->train($samples, []);
 
-        // Ambil aturan asosiasi
-        $rules = $associator->getRules();
-
-        // Return hasil aturan asosiasi
-        return $rules;
+        // Ambil aturan asosiasi yang ditemukan
+        return $associator->getRules();
     }
 }

@@ -34,91 +34,50 @@ class PengunjungController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
-        $validatedData = $request->validate([
-            'nama' => 'required|string|max:255',
-            'no_whatsapp' => 'required|string|max:20',
-            'jenjang' => 'required|string|in:Siswa,Mahasiswa,Guru,Lansia',
-            'kategori' => 'required|string|in:Peminjaman,Pengembalian', // Validasi kategori
-            'tanggal' => 'required|date',
-            'judul_buku' => 'required|string|max:255',
-        ]);
+        // Pastikan user sedang login
+        $user = auth()->user();
 
-        // Ambil buku berdasarkan judul
-        $book = Book::where('judul', $request->judul_buku)->first();
-
-        // Logika untuk kategori peminjaman dan pengembalian
-        if ($request->kategori == 'Peminjaman') {
-            if ($book && $book->stok > 0) {
-                // Kurangi stok buku
-                $book->stok -= 1;
-                $book->save();
-            } else {
-                return redirect()->back()->with('error', 'Stok buku tidak mencukupi.');
-            }
-        } elseif ($request->kategori == 'Pengembalian') {
-            if ($book) {
-                // Tambah stok buku saat pengembalian
-                $book->stok += 1;
-                $book->save();
-            }
+        // Pastikan user memiliki nomor telepon
+        if (!$user->nomor_tlp) {
+            return redirect()->back()->with('error', 'Nomor telepon tidak tersedia. Harap lengkapi profil Anda.');
         }
 
-        // Simpan data pengunjung ke database
-        Pengunjung::create($validatedData);
+        // Simpan data peminjaman buku
+        Pengunjung::create([
+            'user_id' => $user->id,
+            'nama' => $user->name,
+            'nomor_tlp' => $user->nomor_tlp, // Pastikan nomor_tlp diambil dari user
+            'judul_buku' => $request->judul_buku,
+            'kode_buku' => $request->kode_buku,
+            'tanggal_peminjaman' => now()->toDateString(),
+            'kategori' => 'Pinjam',
+        ]);
 
-        return redirect()->route('pengunjung')->with('success', 'Transaksi berhasil diproses.');
+        return redirect()->back()->with('success', 'Buku berhasil dipinjam.');
     }
-
-
 
     /**
      * Menampilkan form edit pengunjung berdasarkan ID
      */
     public function edit($id)
     {
-        $pengunjung = Pengunjung::findOrFail($id);
-        $books = Book::all(); // Ambil semua buku untuk dropdown
-        return view('pages.pengunjung.edit', compact('pengunjung', 'books'));
+        $peminjaman = Pengunjung::findOrFail($id);
+        return view('pengunjung.edit', compact('peminjaman'));
     }
+
 
     /**
      * Memperbarui data pengunjung yang sudah ada
      */
     public function update(Request $request, $id)
     {
-        // Validasi input
-        $validatedData = $request->validate([
-            'nama' => 'required|string|max:255',
-            'no_whatsapp' => 'required|string|max:20',
-            'jenjang' => 'required|string|in:Siswa,Mahasiswa,Guru,Lansia',
-            'kategori' => 'required|string|in:Peminjaman,Pengembalian',
-            'tanggal' => 'required|date',
-            'judul_buku' => 'required|string|max:255',
+        $peminjaman = Pengunjung::findOrFail($id);
+        $peminjaman->update([
+            'kategori' => 'Kembalikan',
+            'tanggal_pengembalian' => now()->toDateString(),
         ]);
 
-        $pengunjung = Pengunjung::findOrFail($id);
-        $book = Book::where('judul', $request->judul_buku)->first();
-
-        // Cek kategori
-        if ($request->kategori == 'Peminjaman') {
-            if ($book && $book->stok > 0) {
-                $book->stok -= 1;
-                $book->save();
-            } else {
-                return redirect()->back()->with('error', 'Stok buku tidak mencukupi.');
-            }
-        } elseif ($request->kategori == 'Pengembalian') {
-            if ($book) {
-                $book->stok += 1;
-                $book->save();
-            }
-        }
-
-        // Update data pengunjung
-        $pengunjung->update($validatedData);
-
-        return redirect()->route('pengunjung')->with('success', 'Data pengunjung berhasil diperbarui.');
+        return redirect()->route('pengunjung.index')->with('success', 'Buku berhasil dikembalikan.');
     }
 
 

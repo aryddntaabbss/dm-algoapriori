@@ -10,11 +10,14 @@ class Pengunjung extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'nama',
-        'no_whatsapp',
+        'nomor_tlp',
         'jenjang',
-        'kategori',
         'judul_buku',
-        'tanggal',
+        'kode_buku',
+        'tanggal_peminjaman',
+        'tanggal_pengembalian',
+        'kategori'
     ];
 }

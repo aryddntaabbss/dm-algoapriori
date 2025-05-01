@@ -20,7 +20,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'nomor_tlp',
+        'jenjang',
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -43,5 +46,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getJenjangAttribute()
+    {
+        return $this->attributes['jenjang'] ?? 'Tidak tersedia';
     }
 }

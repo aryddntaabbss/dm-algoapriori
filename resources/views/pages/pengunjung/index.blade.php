@@ -25,25 +25,30 @@
                                 <thead>
                                     <tr>
                                         <th><strong>ID</strong></th>
+                                        <th><strong>Judul Buku</strong></th>
+                                        <th><strong>Kode Buku</strong></th>
                                         <th><strong>Nama</strong></th>
-                                        <th><strong>No WhatsApp</strong></th>
+                                        <th><strong>Nomor Telepon</strong></th>
                                         <th><strong>Jenjang</strong></th>
                                         <th><strong>Kategori</strong></th>
-                                        <th><strong>Judul Buku</strong></th>
-                                        <th><strong>Tanggal</strong></th>
-                                        <th><strong>Aksi</strong></th>
+                                        <th><strong>Tanggal Peminjaman</strong></th>
+                                        <th><strong>Tanggal Pengembalian</strong></th>
+                                        @if(auth()->user()->role === 'admin')<th><strong>Aksi</strong></th>@endif
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($pengunjungs as $pengunjung)
                                     <tr>
                                         <td>{{ $pengunjung->id }}</td>
-                                        <td>{{ $pengunjung->nama }}</td>
-                                        <td>{{ $pengunjung->no_whatsapp }}</td>
-                                        <td>{{ $pengunjung->jenjang }}</td>
-                                        <td>{{ $pengunjung->kategori }}</td>
                                         <td>{{ $pengunjung->judul_buku }}</td>
-                                        <td>{{ $pengunjung->tanggal }}</td>
+                                        <td>{{ $pengunjung->kode_buku }}</td>
+                                        <td>{{ $pengunjung->nama }}</td>
+                                        <td>{{ $pengunjung->nomor_tlp }}</td>
+                                        <td>{{ $pengunjung->jenjang ?? 'Tidak tersedia' }}</td>
+                                        <td>{{ $pengunjung->kategori }}</td>
+                                        <td>{{ $pengunjung->tanggal_peminjaman }}</td>
+                                        <td>{{ $pengunjung->tanggal_pengembalian }}</td>
+                                        @if(auth()->user()->role === 'admin')
                                         <td>
                                             <button class="btn btn-sm dropdown-toggle more-horizontal" type="button"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -68,6 +73,7 @@
                                                 </form>
                                             </div>
                                         </td>
+                                        @endif
                                     </tr>
                                     @endforeach
                                 </tbody>

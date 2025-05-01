@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Tampilkan halaman edit profil pengguna.
      */
     public function edit(Request $request): View
     {
@@ -22,23 +22,28 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Perbarui informasi profil pengguna.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $validatedData = $request->validated();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Jika email berubah, reset verifikasi email
+        if ($user->email !== $validatedData['email']) {
+            $validatedData['email_verified_at'] = null;
         }
 
-        $request->user()->save();
+        // Perbarui data hanya jika ada perubahan
+        if ($user->update($validatedData)) {
+            return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        }
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit')->with('error', 'Gagal memperbarui profil.');
     }
 
     /**
-     * Delete the user's account.
+     * Hapus akun pengguna.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -48,13 +53,15 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        Auth::logout();
+        Auth::logout(); // Logout sebelum menghapus akun
 
+        // Hapus akun pengguna
         $user->delete();
 
+        // Invalidate session & regenerate token
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return Redirect::to('/')->with('status', 'account-deleted');
     }
 }

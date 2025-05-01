@@ -4,63 +4,47 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Book;
-use App\Imports\BooksImport;
+use App\Models\Pengunjung;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\BooksImport;
 
 class BookController extends Controller
 {
     public function index()
     {
-        // Mengambil semua data buku dari database
-        $books = Book::all();
-        return view('pages.pengelolaan-buku.buku', compact('books'));
+        $books = Book::all(); // Ambil semua buku
+        $pengunjungs = Pengunjung::all(); // Ambil semua data peminjaman
+
+        return view('pages.pengelolaan-buku.buku', compact('books', 'pengunjungs'));
     }
 
-    /**
-     * Menampilkan form tambah buku
-     */
     public function create()
     {
         return view('pages.pengelolaan-buku.tambah');
     }
 
-    /**
-     * Menyimpan data buku ke database
-     */
     public function store(Request $request)
     {
-        // Validasi input
         $validatedData = $request->validate([
             'kode_buku' => 'required|string|max:255|unique:books,kode_buku',
             'judul' => 'required|string|max:255',
             'pengarang' => 'required|string|max:255',
             'kategori_buku' => 'required|string|max:255',
-            'stok' => 'required|integer',
+            'stok' => 'required|integer|min:1',
             'tahun_terbit' => 'required|integer',
         ]);
 
-        // Simpan data ke database
         Book::create($validatedData);
 
-        return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan.');
+        return redirect()->route('buku')->with('success', 'Buku berhasil ditambahkan.');
     }
 
-
-    /**
-     * Menampilkan form edit untuk buku yang dipilih
-     */
     public function edit($id)
     {
-        // Mengambil data buku berdasarkan ID
         $book = Book::findOrFail($id);
-
-        // Mengarahkan ke halaman edit dengan data buku
         return view('pages.pengelolaan-buku.edit', compact('book'));
     }
-
-    /**
-     * Mengupdate buku berdasarkan ID
-     */
 
     public function update(Request $request, Book $book)
     {
@@ -69,27 +53,21 @@ class BookController extends Controller
             'pengarang' => 'required|string|max:255',
             'tahun_terbit' => 'required|integer',
             'kategori_buku' => 'required|string|max:255',
-            'stok' => 'required|integer',
-            'kode_buku' => 'required|string|max:100|unique:books,kode_buku,' . $book->id, // Mengabaikan buku saat ini
+            'stok' => 'required|integer|min:0',
+            'kode_buku' => 'required|string|max:100|unique:books,kode_buku,' . $book->id,
         ]);
 
-        // Mengambil buku berdasarkan ID
-        $book = Book::findOrFail($book);
-
-        // Memperbarui data buku
+        // Perbaikan: Menggunakan langsung $book
         $book->update($validatedData);
 
-        // Redirect ke halaman daftar buku dengan pesan sukses
         return redirect()->route('buku')->with('success', 'Buku berhasil diperbarui.');
     }
 
-    // Metode untuk mengimpor buku
     public function import(Request $request)
     {
         $import = new BooksImport;
         Excel::import($import, $request->file('file'));
 
-        // Ambil daftar buku yang duplikat
         $duplicates = $import->getDuplicateBooks();
 
         if (count($duplicates) > 0) {
@@ -99,19 +77,76 @@ class BookController extends Controller
         return redirect()->route('buku')->with('success', 'Buku berhasil diimport.');
     }
 
-
-    /**
-     * Menghapus buku berdasarkan ID
-     */
     public function destroy($id)
     {
-        // Mengambil buku berdasarkan ID
         $book = Book::findOrFail($id);
-
-        // Menghapus buku dari database
         $book->delete();
 
-        // Redirect kembali ke halaman daftar buku dengan pesan sukses
         return redirect()->route('buku')->with('success', 'Buku berhasil dihapus.');
+    }
+
+    public function pinjam(Request $request)
+    {
+        if (!auth()->check()) {
+            return redirect()->back()->with('error', 'Anda harus login untuk meminjam buku.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $book = Book::where('judul', $request->judul_buku)->firstOrFail();
+
+            // Cek apakah stok masih tersedia sebelum meminjam
+            if ($book->stok <= 0) {
+                return redirect()->back()->with('error', 'Stok buku habis, tidak bisa dipinjam.');
+            }
+
+            // Kurangi stok menggunakan decrement
+            $book->decrement('stok', 1);
+
+            // Simpan data peminjaman
+            Pengunjung::create([
+                'user_id' => auth()->user()->id,
+                'nama' => auth()->user()->name,
+                'nomor_tlp' => auth()->user()->nomor_tlp ?? 'Tidak tersedia',
+                'jenjang' => auth()->user()->jenjang ?? 'Tidak tersedia',
+                'judul_buku' => $book->judul,
+                'kode_buku' => $book->kode_buku,
+                'tanggal_peminjaman' => now()->toDateString(),
+                'kategori' => 'Pinjam',
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Buku berhasil dipinjam.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat meminjam buku.');
+        }
+    }
+
+
+    public function kembalikan($id)
+    {
+        $peminjaman = Pengunjung::findOrFail($id);
+
+        // Pastikan hanya user yang meminjam yang bisa mengembalikan
+        if ($peminjaman->user_id !== auth()->user()->id) {
+            return redirect()->back()->with('error', 'Anda tidak bisa mengembalikan buku ini!');
+        }
+
+        // Ambil buku berdasarkan judul
+        $book = Book::where('judul', $peminjaman->judul_buku)->first();
+
+        if ($book) {
+            // Tambahkan stok buku
+            $book->increment('stok', 1);
+        }
+
+        // Perbarui status menjadi dikembalikan
+        $peminjaman->update([
+            'tanggal_pengembalian' => now()->toDateString(),
+            'kategori' => 'Kembalikan',
+        ]);
+
+        return redirect()->back()->with('success', 'Buku berhasil dikembalikan.');
     }
 }
