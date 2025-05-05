@@ -15,18 +15,6 @@
                 <div class="col-md-12">
                     <div class="card shadow">
                         <div class="card-body">
-                            <div class="card-header">
-                                @if(auth()->user()->role === 'admin')
-                                <a href="{{ route('buku.create') }}" class="btn btn-primary">
-                                    <i class="fe fe-file-plus fe-16"></i> Tambah Data Buku
-                                </a>
-                                <!-- Tombol untuk membuka modal -->
-                                <button type="button" class="btn btn-warning" data-toggle="modal"
-                                    data-target="#importModal">
-                                    <i class="fe fe-upload fe-16"></i> Import Buku dari Excel
-                                </button>
-                                @endif
-                            </div>
 
                             <!-- table -->
                             <table class="table datatables" id="dataTable-1">
@@ -46,7 +34,7 @@
                                 <tbody>
                                     @foreach($books as $book)
                                     <tr>
-                                        <td>{{ $book->id }}</td> <!-- Tampilkan ID -->
+                                        <td>{{ $loop->iteration }}</td>
                                         <td>{{ $book->kode_buku }}</td>
                                         <td>{{ $book->judul }}</td>
                                         <td>{{ $book->pengarang }}</td>
@@ -91,11 +79,10 @@
                                                 @if(!$sedangMeminjam)
                                                 <form action="{{ route('buku.pinjam') }}" method="POST">
                                                     @csrf
+                                                    <input type="hidden" name="kode_buku"
+                                                        value="{{ $book->kode_buku }}">
                                                     <input type="hidden" name="judul_buku" value="{{ $book->judul }}">
-                                                    <button type="submit" class="btn btn-primary dropdown-item"
-                                                        @if($book->stok <= 0) disabled @endif>
-                                                            <i class="fe fe-arrow-right"></i> Pinjam Buku
-                                                    </button>
+                                                    <button type="submit" class="btn btn-primary">Pinjam Buku</button>
                                                 </form>
                                                 @else
                                                 <form

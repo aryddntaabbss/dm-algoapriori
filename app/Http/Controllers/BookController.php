@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use App\Imports\BooksImport;
+use Carbon\Carbon;
 use App\Models\Book;
 use App\Models\Pengunjung;
-use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\BooksImport;
 
 class BookController extends Controller
 {
@@ -57,7 +58,6 @@ class BookController extends Controller
             'kode_buku' => 'required|string|max:100|unique:books,kode_buku,' . $book->id,
         ]);
 
-        // Perbaikan: Menggunakan langsung $book
         $book->update($validatedData);
 
         return redirect()->route('buku')->with('success', 'Buku berhasil diperbarui.');
@@ -87,66 +87,73 @@ class BookController extends Controller
 
     public function pinjam(Request $request)
     {
-        if (!auth()->check()) {
-            return redirect()->back()->with('error', 'Anda harus login untuk meminjam buku.');
+        $request->validate([
+            'judul_buku' => 'required|string',
+        ]);
+
+        $user = Auth::user();
+
+        // Cari buku berdasarkan kode_buku
+        $book = Book::where('kode_buku', $request->kode_buku)->first();
+
+        if (!$book || $book->stok <= 0) {
+            return redirect()->back()->with('error', 'Buku tidak tersedia untuk dipinjam.');
         }
 
-        DB::beginTransaction();
-        try {
-            $book = Book::where('judul', $request->judul_buku)->firstOrFail();
+        // Kurangi stok buku
+        $book->decrement('stok');
 
-            // Cek apakah stok masih tersedia sebelum meminjam
-            if ($book->stok <= 0) {
-                return redirect()->back()->with('error', 'Stok buku habis, tidak bisa dipinjam.');
-            }
+        // Simpan data peminjaman
+        $tanggalPengembalian = Carbon::now()->addDays(7); // Batas pengembalian 7 hari
+        Pengunjung::create([
+            'user_id' => $user->id,
+            'nama' => $user->name,
+            'nomor_tlp' => $user->nomor_tlp,
+            'judul_buku' => $request->judul_buku,
+            'kode_buku' => $request->kode_buku,
+            'tanggal_peminjaman' => now()->toDateString(),
+            'tanggal_pengembalian' => $tanggalPengembalian->toDateString(),
+            'kategori' => 'Pinjam',
+        ]);
 
-            // Kurangi stok menggunakan decrement
-            $book->decrement('stok', 1);
+        // Format tanggal pengembalian
+        $formattedDate = $tanggalPengembalian->isoFormat('dddd, DD/MM/YYYY');
 
-            // Simpan data peminjaman
-            Pengunjung::create([
-                'user_id' => auth()->user()->id,
-                'nama' => auth()->user()->name,
-                'nomor_tlp' => auth()->user()->nomor_tlp ?? 'Tidak tersedia',
-                'jenjang' => auth()->user()->jenjang ?? 'Tidak tersedia',
-                'judul_buku' => $book->judul,
-                'kode_buku' => $book->kode_buku,
-                'tanggal_peminjaman' => now()->toDateString(),
-                'kategori' => 'Pinjam',
-            ]);
-
-            DB::commit();
-            return redirect()->back()->with('success', 'Buku berhasil dipinjam.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat meminjam buku.');
-        }
+        return redirect()->back()->with('success', 'Buku berhasil dipinjam. Harap dikembalikan sebelum ' . $formattedDate);
     }
-
 
     public function kembalikan($id)
     {
         $peminjaman = Pengunjung::findOrFail($id);
 
-        // Pastikan hanya user yang meminjam yang bisa mengembalikan
-        if ($peminjaman->user_id !== auth()->user()->id) {
-            return redirect()->back()->with('error', 'Anda tidak bisa mengembalikan buku ini!');
+        // Cek apakah tanggal_pengembalian ada
+        if (!$peminjaman->tanggal_pengembalian) {
+            return redirect()->back()->with('error', 'Tanggal pengembalian tidak ditemukan untuk peminjaman ini.');
         }
 
-        // Ambil buku berdasarkan judul
-        $book = Book::where('judul', $peminjaman->judul_buku)->first();
+        // Cari buku berdasarkan kode_buku
+        $book = Book::where('kode_buku', $peminjaman->kode_buku)->first();
 
         if ($book) {
-            // Tambahkan stok buku
-            $book->increment('stok', 1);
+            // Tambah stok buku
+            $book->increment('stok');
+        } else {
+            return redirect()->back()->with('error', 'Buku tidak ditemukan di database.');
         }
 
-        // Perbarui status menjadi dikembalikan
+        // Format tanggal pengembalian
+        $formattedDate = Carbon::parse($peminjaman->tanggal_pengembalian)->isoFormat('dddd, DD/MM/YYYY');
+
+        // Cek apakah pengembalian terlambat
+        if (now()->greaterThan($peminjaman->tanggal_pengembalian)) {
+            return redirect()->back()->with('warning', 'Buku dikembalikan terlambat! Batas pengembalian adalah ' . $formattedDate);
+        }
+
+        // Update status peminjaman
         $peminjaman->update([
-            'tanggal_pengembalian' => now()->toDateString(),
             'kategori' => 'Kembalikan',
         ]);
 
-        return redirect()->back()->with('success', 'Buku berhasil dikembalikan.');
+        return redirect()->back()->with('success', 'Buku berhasil dikembalikan dan stok telah diperbarui.');
     }
 }

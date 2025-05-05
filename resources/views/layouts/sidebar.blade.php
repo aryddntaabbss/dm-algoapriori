@@ -23,22 +23,6 @@
         </ul>
 
         <!-- Manajemen Buku Link -->
-        @auth
-        @if (auth()->user()->role === 'admin')
-        <ul class="navbar-nav flex-fill w-100 mb-2">
-            <li class="nav-item w-100">
-                <a class="nav-link {{ Request::is('buku*') ? 'actives' : '' }}" href="{{ route('buku') }}">
-                    <i class="fe fe-book fe-16"></i>
-                    <span class="ml-3 item-text">Manajemen Buku</span>
-                </a>
-            </li>
-        </ul>
-        @endif
-        @endauth
-
-        @auth
-        @if (auth()->user()->role === 'pengunjung')
-        <!-- Manajemen Buku Link -->
         <ul class="navbar-nav flex-fill w-100 mb-2">
             <li class="nav-item w-100">
                 <a class="nav-link {{ Request::is('buku*') ? 'actives' : '' }}" href="{{ route('buku') }}">
@@ -47,23 +31,6 @@
                 </a>
             </li>
         </ul>
-        @endif
-        @endauth
-
-
-        <!-- Pengunjung Link -->
-        @auth
-        @if (auth()->user()->role === 'admin')
-        <ul class="navbar-nav flex-fill w-100 mb-2">
-            <li class="nav-item w-100">
-                <a class="nav-link {{ Request::is('pengunjung*') ? 'actives' : '' }}" href="{{ route('pengunjung') }}">
-                    <i class="fe fe-users fe-16"></i>
-                    <span class="ml-3 item-text">Pengunjung</span>
-                </a>
-            </li>
-        </ul>
-        @endif
-        @endauth
 
         <!-- Rekomendasi Link -->
         <ul class="navbar-nav flex-fill w-100 mb-2">
@@ -75,20 +42,6 @@
                 </a>
             </li>
         </ul>
-
-        <!-- Manajemen User Link (Hanya untuk Admin) -->
-        @auth
-        @if (auth()->user()->role === 'admin')
-        <ul class="navbar-nav flex-fill w-100 mb-2">
-            <li class="nav-item w-100">
-                <a class="nav-link {{ Request::is('users*') ? 'actives' : '' }}" href="{{ route('users.index') }}">
-                    <i class="fe fe-users fe-16"></i>
-                    <span class="ml-3 item-text">Manajemen User</span>
-                </a>
-            </li>
-        </ul>
-        @endif
-        @endauth
 
         <!-- Profile Link -->
         <ul class="navbar-nav flex-fill w-100 mb-2">

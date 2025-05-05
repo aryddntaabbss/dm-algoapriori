@@ -52,12 +52,11 @@
                                 <!-- Judul Buku -->
                                 <div class="form-group">
                                     <label for="judul_buku">Judul Buku</label>
-                                    <select id="judul_buku"
-                                        class="form-control @error('judul_buku') is-invalid @enderror" name="judul_buku"
-                                        required>
-                                        <option value="" disabled selected>Pilih Buku</option>
+                                    <select name="kode_buku" class="form-control" required>
+                                        <option value="">-- Pilih Buku --</option>
                                         @foreach($books as $book)
-                                        <option value="{{ $book->judul }}">{{ $book->judul }}</option>
+                                        <option value="{{ $book->kode_buku }}">{{ $book->judul }}
+                                            ({{ $book->kode_buku }})</option>
                                         @endforeach
                                     </select>
                                     @error('judul_buku')
@@ -88,15 +87,15 @@
                                     <form action="{{ route('pengunjung.store') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="nama" value="{{ auth()->user()->name }}">
-                                        <input type="hidden" name="nomor_tlp" value="{{ auth()->user()->nomor_tlp }}">
+                                        <input type="hidden" name="nomor_tlp"
+                                            value="{{ auth()->user()->nomor_tlp }}"><input type="hidden"
+                                            name="kode_buku" value="{{ $book->kode_buku }}">
                                         <input type="hidden" name="judul_buku" value="{{ $book->judul }}">
                                         <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
                                         <input type="hidden" name="tanggal_peminjaman"
                                             value="{{ now()->toDateString() }}">
                                         <input type="hidden" name="kategori" value="Pinjam">
-                                        <button type="submit" class="btn btn-primary dropdown-item">
-                                            <i class="fe fe-edit"></i> Pinjam
-                                        </button>
+                                        <button type="submit" class="btn btn-primary">Pinjam Buku</button>
                                     </form>
                                     @else
                                     <!-- Jika buku sudah dipinjam, tampilkan tombol Kembalikan -->

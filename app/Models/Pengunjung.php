@@ -20,4 +20,12 @@ class Pengunjung extends Model
         'tanggal_pengembalian',
         'kategori'
     ];
+
+    /**
+     * Relasi ke model User
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

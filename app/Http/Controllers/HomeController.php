@@ -10,15 +10,9 @@ class HomeController extends Controller
     public function index()
     {
         // Menghitung jumlah buku
-        $bookCount = Book::count();
+        $bookCount = Book::count(); // Jumlah buku
+        $peminjaman = Pengunjung::where('user_id', auth()->id())->get(); // Buku yang dipinjam oleh user yang login
 
-        // Menghitung jumlah pengunjung dengan kategori "peminjam"
-        $pengunjungCount = Pengunjung::whereRaw('LOWER(kategori) = ?', ['peminjaman'])->count();
-
-        // Mengirim data ke view
-        return view('pages.dashboard', [
-            'bookCount' => $bookCount,
-            'pengunjungCount' => $pengunjungCount
-        ]);
+        return view('pages.dashboard', compact('bookCount', 'peminjaman'));
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pengunjung;
 use Illuminate\Http\Request;
 use App\Models\Book;
+use Illuminate\Support\Facades\Auth;
 
 class PengunjungController extends Controller
 {
@@ -13,10 +14,7 @@ class PengunjungController extends Controller
      */
     public function index()
     {
-        // Mengambil semua data pengunjung
-        $pengunjungs = Pengunjung::all();
-
-        // Mengirim data pengunjung ke view 'pengunjung.index'
+        $pengunjungs = Pengunjung::all(); // Ambil semua data pengunjung
         return view('pages.pengunjung.index', compact('pengunjungs'));
     }
 
@@ -25,7 +23,7 @@ class PengunjungController extends Controller
      */
     public function create()
     {
-        $books = Book::all(); // Ambil semua data buku untuk ditampilkan di form
+        $books = Book::all();
         return view('pages.pengunjung.create', compact('books'));
     }
 
@@ -34,26 +32,26 @@ class PengunjungController extends Controller
      */
     public function store(Request $request)
     {
-        // Pastikan user sedang login
+        $request->validate([
+            'kode_buku' => 'required|string',
+            'judul_buku' => 'required|string',
+        ]);
+
         $user = auth()->user();
 
-        // Pastikan user memiliki nomor telepon
-        if (!$user->nomor_tlp) {
-            return redirect()->back()->with('error', 'Nomor telepon tidak tersedia. Harap lengkapi profil Anda.');
-        }
-
-        // Simpan data peminjaman buku
         Pengunjung::create([
             'user_id' => $user->id,
             'nama' => $user->name,
-            'nomor_tlp' => $user->nomor_tlp, // Pastikan nomor_tlp diambil dari user
+            'nomor_tlp' => $user->nomor_tlp,
+            'jenjang' => $user->jenjang,
             'judul_buku' => $request->judul_buku,
             'kode_buku' => $request->kode_buku,
             'tanggal_peminjaman' => now()->toDateString(),
+            'tanggal_pengembalian' => now()->addDays(7)->toDateString(),
             'kategori' => 'Pinjam',
         ]);
 
-        return redirect()->back()->with('success', 'Buku berhasil dipinjam.');
+        return redirect()->route('pengunjung.index')->with('success', 'Buku berhasil dipinjam.');
     }
 
     /**
@@ -62,9 +60,8 @@ class PengunjungController extends Controller
     public function edit($id)
     {
         $peminjaman = Pengunjung::findOrFail($id);
-        return view('pengunjung.edit', compact('peminjaman'));
+        return view('pages.pengunjung.edit', compact('peminjaman'));
     }
-
 
     /**
      * Memperbarui data pengunjung yang sudah ada
@@ -80,8 +77,6 @@ class PengunjungController extends Controller
         return redirect()->route('pengunjung.index')->with('success', 'Buku berhasil dikembalikan.');
     }
 
-
-
     /**
      * Menghapus data pengunjung
      */
@@ -94,6 +89,6 @@ class PengunjungController extends Controller
         $pengunjung->delete();
 
         // Redirect ke halaman daftar pengunjung dengan pesan sukses
-        return redirect()->route('pengunjung')->with('success', 'Pengunjung berhasil dihapus.');
+        return redirect()->route('pengunjung.index')->with('success', 'Pengunjung berhasil dihapus.');
     }
 }

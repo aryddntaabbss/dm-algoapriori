@@ -39,15 +39,17 @@
                                 <tbody>
                                     @foreach($pengunjungs as $pengunjung)
                                     <tr>
-                                        <td>{{ $pengunjung->id }}</td>
+                                        <td>{{ $loop->iteration }}</td>
                                         <td>{{ $pengunjung->judul_buku }}</td>
                                         <td>{{ $pengunjung->kode_buku }}</td>
                                         <td>{{ $pengunjung->nama }}</td>
                                         <td>{{ $pengunjung->nomor_tlp }}</td>
                                         <td>{{ $pengunjung->jenjang ?? 'Tidak tersedia' }}</td>
                                         <td>{{ $pengunjung->kategori }}</td>
-                                        <td>{{ $pengunjung->tanggal_peminjaman }}</td>
-                                        <td>{{ $pengunjung->tanggal_pengembalian }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($pengunjung->tanggal_peminjaman)->isoFormat('dddd, DD/MM/YYYY') }}
+                                        </td>
+                                        <td>{{ \Carbon\Carbon::parse($pengunjung->tanggal_pengembalian)->isoFormat('dddd, DD/MM/YYYY') }}
+                                        </td>
                                         @if(auth()->user()->role === 'admin')
                                         <td>
                                             <button class="btn btn-sm dropdown-toggle more-horizontal" type="button"
