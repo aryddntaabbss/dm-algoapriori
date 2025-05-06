@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="card shadow mb-3">
-    <div class="card-body rounded-sm bg-blue-500">
+    <div class="card-body rounded-sm bg-blue-300">
         <h1 class="h3">🎉 HALO <span class="text-white">{{ auth()->user()->name }}</span>, SELAMAT DATANG DI
             PERPUSTAKAAN DAERAH KOTA TERNATE 🎉</h1>
     </div>
